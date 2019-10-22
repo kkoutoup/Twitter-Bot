@@ -1,7 +1,6 @@
 #Dependencies
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import NoSuchElementException
 from datetime import date
 from format_number import format_number
 from return_mentions import return_mentions
@@ -54,7 +53,8 @@ class TwitterBot:
     twitter_handles = ['twitterhandle1', 'twitterhandle2', 'twitterhandle3']
     
     self.page_urls = [f"https://analytics.twitter.com/user/{item}/home" for item in twitter_handles]
-            
+
+  #login 
   def login(self):
     print("=> Visiting twitter.com")
     try:
@@ -97,7 +97,7 @@ class TwitterBot:
     else:
       time.sleep(2)
       #click on dropdown and select 'switch accounts'
-      driver.find_element_by_link_text('element text').click()
+      driver.find_element_by_link_text('link text').click()
       driver.find_element_by_id('switch-account-link').click()
       time.sleep(2)
       try:
@@ -110,7 +110,8 @@ class TwitterBot:
 
   #loop through accounts and collect data
   def collect_data(self):
-    #uses return_mentions, return_profile_visits, return_new_followers imports
+    #uses return_mentions, return_profile_visits, return_new_followers, return_followers imports
+    print("=> Collecting data")
     for item in self.page_urls:
       driver = self.driver
       driver.get(item)
@@ -133,12 +134,7 @@ class TwitterBot:
         new_followers = return_new_followers(self)
         formatted_new_followers = format_number(new_followers)
         
-        committee_data_list.extend([committee_name, formatted_followers, formatted_profile_visits, formatted_mentions, formatted_new_followers ])
-
-      #if one of the metrics isn't found raise an exception but keep the loop going
-      except NoSuchElementException:
-        print(f"Oops! the element wasn't found on the page: {driver.current_url}")
-        pass
+        committee_data_list.extend([committee_name, formatted_followers, formatted_profile_visits, formatted_mentions, formatted_new_followers])
       except Exception as e:
         print(e)
         pass
@@ -161,7 +157,6 @@ class TwitterBot:
     new_path = f"{self.new_folder_path}\\twitter-data.csv"
     os.rename(current_path, new_path)
     
-
   #close driver
   def close_driver(self):
     print("=> Closing driver...")
