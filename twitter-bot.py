@@ -7,7 +7,8 @@ from return_mentions import return_mentions
 from return_profile_visits import return_profile_visits
 from return_new_followers import return_new_followers
 from return_followers import return_followers
-import time, os, csv
+import time, os
+from create_csv import create_csv
 
 #TwitterBot
 class TwitterBot:
@@ -143,19 +144,25 @@ class TwitterBot:
 
   #write to csv and move csv in the output folder
   def write_to_csv(self):
-    print("=> Putting everything in a cute csv your data analyst will love")
-    try:
-      with open('twitter-data.csv', 'w') as csv_file:
-        csv_writer = csv.writer(csv_file, lineterminator = '\n')
-        csv_writer.writerow(['Committee Name', 'Followers', 'Profile visits', 'Mentions', 'New followers'])
-        for item in self.data:
-          csv_writer.writerow([item[0], item[1], item[2], item[3], item[4]])
-    except Exception as e:
-      print(e)
-    #move csv into folder
+    #checks if file exists and asks for user input
     current_path = os.getcwd()+f"\\twitter-data.csv"
     new_path = f"{self.new_folder_path}\\twitter-data.csv"
-    os.rename(current_path, new_path)
+    if os.path.exists(new_path):
+      while True:
+        user_input = input("The file already exists. Would you like to replace it? Y/N: ")
+        if user_input.lower() == 'n':
+          print("=> Didn\'t produce new csv file. Exiting now...")
+          return
+        elif user_input.lower() == 'y':
+          os.remove(new_path)
+          new_csv = create_csv(self)
+          os.rename(current_path, new_path)
+          print("=> File replaced")
+          break
+    else:
+      new_csv = create_csv(self)
+      os.rename(current_path, new_path)
+      print("=> csv file saved")
     
   #close driver
   def close_driver(self):
