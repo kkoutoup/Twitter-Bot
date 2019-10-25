@@ -1,14 +1,17 @@
 #Dependencies
+import time, os
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from datetime import date
+
+#Local Dependencies
 from format_number import format_number
 from return_mentions import return_mentions
 from return_profile_visits import return_profile_visits
 from return_new_followers import return_new_followers
 from return_followers import return_followers
 from create_csv import create_csv
-import time, os
+
 
 
 #TwitterBot
