@@ -7,8 +7,9 @@ from return_mentions import return_mentions
 from return_profile_visits import return_profile_visits
 from return_new_followers import return_new_followers
 from return_followers import return_followers
-import time, os, csv
 from create_csv import create_csv
+import time, os
+
 
 #TwitterBot
 class TwitterBot:
