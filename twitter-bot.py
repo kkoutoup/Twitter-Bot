@@ -23,7 +23,6 @@ class TwitterBot:
     self.driver = webdriver.Chrome()
     self.page_urls = []
     self.data = []
-    self.current_date = date.today().strftime('%b %Y')
 
   #create new folder to store data
   def create_new_folder(self):
@@ -34,12 +33,12 @@ class TwitterBot:
     current_year = current_date.year
 
     if current_month == 1:
-      month_year = current_date.replace(month = 12, year = current_year-1).strftime('%b %Y')
+      self.month_year = current_date.replace(month = 12, year = current_year-1).strftime('%b %Y')
     else:
-      month_year = current_date.replace(month = current_month-1).strftime('%b %Y')
+      self.month_year = current_date.replace(month = current_month-1).strftime('%b %Y')
 
     #destination folder path / use this to store csv file
-    self.new_folder_path = os.path.join(os.getcwd(), f"{month_year} Tweet Data")
+    self.new_folder_path = os.path.join(os.getcwd(), f"{self.month_year} Tweet Data")
     
     try:
       if not os.path.exists(self.new_folder_path):
@@ -55,7 +54,7 @@ class TwitterBot:
     print('=> Constructing page urls')
 
     #this list should contain all twitter handles. placeholders used here
-    twitter_handles = ['twitterhandle1', 'twitterhandle2']
+    twitter_handles = ['twitterhandle', 'twitterhandle', 'twitterhandle']
     
     self.page_urls = [f"https://analytics.twitter.com/user/{item}/home" for item in twitter_handles]
 
