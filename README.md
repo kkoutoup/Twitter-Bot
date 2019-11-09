@@ -16,7 +16,7 @@ Helping out the team's performance analyst automate a process that up until now 
 - New followers
 
 ### File structure
-Main file `twitter-bot.py` that imports five modules
+Main file `twitter-bot.py` that imports the following modules
 ```
 
 twitter-bot.py
