@@ -1,6 +1,7 @@
 #Dependencies
 import time, os
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from datetime import date
 
@@ -20,7 +21,9 @@ class TwitterBot:
   def __init__(self, username, password):
     self.username = username
     self.password = password
-    self.driver = webdriver.Chrome()
+    self.chrome_options = Options()
+    self.chrome_options.add_argument("--start-maximized")
+    self.driver = webdriver.Chrome(chrome_options=self.chrome_options)
     self.page_urls = []
     self.data = []
 
