@@ -3,6 +3,10 @@ import time, os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from datetime import date
 
 #Local Dependencies
@@ -37,8 +41,10 @@ class TwitterBot:
 
     if current_month == 1:
       self.month_year = current_date.replace(month = 12, year = current_year-1).strftime('%b %Y')
+      self.full_month_year = current_date.replace(month = 12, year = current_year-1).strftime('%B %Y')
     else:
       self.month_year = current_date.replace(month = current_month-1).strftime('%b %Y')
+      self.full_month_year = current_date.replace(month = current_month-1).strftime('%B %Y')
 
     #destination folder path / use this to store csv file
     self.new_folder_path = os.path.join(os.getcwd(), f"{self.month_year} Tweet Data")
@@ -148,6 +154,42 @@ class TwitterBot:
       else:
         self.data.append(committee_data_list)
 
+  # collect video data
+  def collect_video_data(self):
+    print("=> Downloading video data")
+    for item in self.page_urls:
+      try:
+        self.driver.get(item)
+        time.sleep(4)
+        # click on dropdown and select videos page link
+        self.driver.find_elements_by_xpath('//ul[@class = "SharedNavBar-navGroup"]//li')[4].click()
+        self.driver.find_elements_by_xpath('//ul[@class = "SharedNavBar-navGroup"]//li')[5].click()
+        time.sleep(4)
+        # set date_range
+        self.driver.find_element_by_id('daterange-button').click() 
+        time.sleep(4)
+        self.driver.find_element_by_xpath('//li[text() = "%s"]'%self.full_month_year).click()
+        time.sleep(4)
+        download_csv_button = self.driver.find_element_by_xpath('//button[@class = "btn btn-default ladda-button"]')
+        if download_csv_button.is_enabled():
+          try:
+            download_csv_button.click()
+            time.sleep(2)
+            self.driver.find_element_by_xpath('//button[@data-type = "by_video"]').click()
+            time.sleep(2)
+            wait = WebDriverWait(self.driver, 15)
+            element = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@class = "btn btn-default ladda-button"]')))
+          except TimeoutException:
+            print(f"Operation timed out at {self.driver.current_url}. Moving to next page.")
+          finally:
+            pass
+        else:
+          print(f"No video data for {self.driver.current_url}")
+      except Exception as e:
+        print(e)
+      
+    # go back to home page
+    self.driver.get('https://twitter.com')
   #write to csv and move csv in the output folder
   def write_to_csv(self):
     #checks if file exists and asks for user input
@@ -180,7 +222,8 @@ wpu_bot = TwitterBot('username', 'password')
 wpu_bot.create_new_folder()
 wpu_bot.construct_page_urls()
 wpu_bot.login()
-wpu_bot.go_to_account_overview()
-wpu_bot.collect_data()
-wpu_bot.write_to_csv()
-wpu_bot.close_driver()
+wpu_bot.collect_video_data()
+#wpu_bot.go_to_account_overview()
+#wpu_bot.collect_data()
+#wpu_bot.write_to_csv()
+#wpu_bot.close_driver()
