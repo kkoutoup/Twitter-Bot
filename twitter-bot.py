@@ -192,6 +192,7 @@ class TwitterBot:
       
     # go back to home page
     self.driver.get('https://twitter.com')
+
   #write to csv and move csv in the output folder
   def write_to_csv(self):
     #checks if file exists and asks for user input
