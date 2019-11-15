@@ -171,12 +171,14 @@ class TwitterBot:
         self.driver.find_element_by_xpath('//li[text() = "%s"]'%self.full_month_year).click()
         time.sleep(4)
         download_csv_button = self.driver.find_element_by_xpath('//button[@class = "btn btn-default ladda-button"]')
+        # if element is clickable download video data .csv
         if download_csv_button.is_enabled():
           try:
             download_csv_button.click()
             time.sleep(2)
             self.driver.find_element_by_xpath('//button[@data-type = "by_video"]').click()
             time.sleep(2)
+            # give the operation a 15" window to complete, otherwise throw timeout exception
             wait = WebDriverWait(self.driver, 15)
             element = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@class = "btn btn-default ladda-button"]')))
           except TimeoutException:
