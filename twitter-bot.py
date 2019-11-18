@@ -154,6 +154,32 @@ class TwitterBot:
       else:
         self.data.append(committee_data_list)
 
+  #write to csv and move csv in the output folder
+  def write_to_csv(self):
+    #checks if file exists and asks for user input
+    current_path = os.getcwd()+f"\\twitter-data.csv"
+    new_path = f"{self.new_folder_path}\\twitter-data.csv"
+    if os.path.exists(new_path):
+      while True:
+        user_input = input("The file already exists. Would you like to replace it? Y/N: ")
+        if user_input.lower() == 'n':
+          print("=> Didn\'t produce new csv file. Exiting now...")
+          return
+        elif user_input.lower() == 'y':
+          os.remove(new_path)
+          new_csv = create_csv(self)
+          os.rename(current_path, new_path)
+          print("=> File replaced")
+          break
+    else:
+      new_csv = create_csv(self)
+      os.rename(current_path, new_path)
+      print("=> csv file saved")
+
+    # switch to main window  
+    time.sleep(2)
+    self.driver.switch_to.window(self.driver.window_handles[0])
+
   # collect video data
   def collect_video_data(self):
     print("=> Downloading video data")
@@ -189,40 +215,13 @@ class TwitterBot:
           print(f"No video data for {self.driver.current_url}")
       except Exception as e:
         print(e)
-      
-    # go back to home page
-    self.driver.get('https://twitter.com')
-
-  #write to csv and move csv in the output folder
-  def write_to_csv(self):
-    #checks if file exists and asks for user input
-    current_path = os.getcwd()+f"\\twitter-data.csv"
-    new_path = f"{self.new_folder_path}\\twitter-data.csv"
-    if os.path.exists(new_path):
-      while True:
-        user_input = input("The file already exists. Would you like to replace it? Y/N: ")
-        if user_input.lower() == 'n':
-          print("=> Didn\'t produce new csv file. Exiting now...")
-          return
-        elif user_input.lower() == 'y':
-          os.remove(new_path)
-          new_csv = create_csv(self)
-          os.rename(current_path, new_path)
-          print("=> File replaced")
-          break
-    else:
-      new_csv = create_csv(self)
-      os.rename(current_path, new_path)
-      print("=> csv file saved")
-   
-  #close driver
-  def close_driver(self):
-    print("=> Closing driver...")
-    self.driver.close()
 
 #run sequence
 wpu_bot = TwitterBot('username', 'password')
 wpu_bot.create_new_folder()
 wpu_bot.construct_page_urls()
 wpu_bot.login()
+wpu_bot.go_to_account_overview()
+wpu_bot.collect_data()
+wpu_bot.write_to_csv()
 wpu_bot.collect_video_data()
