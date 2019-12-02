@@ -15,6 +15,7 @@ Helping out the team's performance analyst automate a process that up until now 
 - Mentions
 - New followers
 - Video analytics (csv download)
+- Tweet analytics (csv download)
 
 ### File structure
 Main file `twitter-bot.py` that imports the following modules
