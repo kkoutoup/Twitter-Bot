@@ -1,4 +1,4 @@
-# Twitter Bot
+# Twitter Bot - Analytics Accounts
 
 ### Category
 Web scraping/automation/data collection
