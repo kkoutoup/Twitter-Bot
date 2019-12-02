@@ -231,7 +231,7 @@ class TwitterBot:
         driver.find_element_by_xpath('//li[text() = "%s"]'%self.full_month_year).click()
         time.sleep(4)
         download_csv_button = driver.find_element_by_xpath('//button[@class = "btn btn-default ladda-button"]')
-        # if element is clickable download video data .csv
+        # if element is clickable download tweet data .csv
         if download_csv_button.is_enabled():
           try:
             download_csv_button.click()
