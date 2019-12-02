@@ -238,7 +238,7 @@ class TwitterBot:
             time.sleep(2)
             driver.find_element_by_xpath('//button[@data-type = "by_tweet"]').click()
             time.sleep(2)
-            # give the operation a 15" window to complete, otherwise throw timeout exception
+            # give the operation a 30" window to complete, otherwise throw timeout exception
             wait = WebDriverWait(driver, 30)
             element = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@class = "btn btn-default ladda-button"]')))
           except TimeoutException:
