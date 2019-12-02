@@ -222,7 +222,7 @@ class TwitterBot:
         driver = self.driver
         driver.get(item)
         time.sleep(4)
-        # click on dropdown and select videos page link
+        # click on dropdown and select tweets page link
         driver.find_elements_by_xpath('//ul[@class="SharedNavBar-navGroup"]//li')[1].click()
         time.sleep(4)
         # set date_range
