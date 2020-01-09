@@ -88,50 +88,24 @@ class TwitterBot:
       password_field.send_keys(self.password)
       driver.find_element_by_class_name('js-submit').click()
       time.sleep(5)
-  
-  # switch to account overview page. This gives access to all individual twitter accounts
-  def go_to_account_overview(self):  
-    print("=> Switching to account overview page")
-    driver = self.driver
-    try:
-      driver.find_elements_by_xpath('//div[@class="css-1dbjc4n"]')[8].click()
-      time.sleep(3)
-      driver.find_element_by_xpath('//div[@title="Analytics"]').click()
-      time.sleep(3)
-      # switch to new window and check window title
-      driver.switch_to.window(driver.window_handles[1])
-      assert "Twitter Analytics account overview" in driver.title
-    except AssertionError:
-      print("Error: This is not the account overview page")
-    except Exception as e:
-      print(e)
-    else:
-      time.sleep(2)
-      # click on dropdown and select 'switch accounts'
-      driver.find_element_by_link_text('link text').click()
-      driver.find_element_by_id('switch-account-link').click()
-      time.sleep(2)
-      try:
-        # making sure we're on the correct page
-        assert "Select an account" in driver.title
-      except AssertionError:
-        print("Error: This is not the account selection page")
-      else:    
-        pass
 
-  # loop through accounts and collect data
+  #loop through accounts and collect data
   def collect_data(self):
-    # uses return_mentions, return_profile_visits, return_new_followers, return_followers imports
+    #uses return_mentions, return_profile_visits, return_new_followers, return_followers imports
     print("=> Collecting data")
     for item in self.page_urls:
       driver = self.driver
       driver.get(item)
       time.sleep(4)
-      # data container
+      #data container
       committee_data_list = []
-      # collect and format data  
+      #collect and format data  
       try:
         committee_name = driver.find_element_by_class_name('ProfileHeader-screenName').text[1:]
+
+        #if the script is run on the 1st of the month the stats appear at the top of the page. if not the browser needs to scroll down a bit for dynamic loading of data to happen.
+        self.driver.execute_script("window.scrollBy(0,1800)")
+        time.sleep(4)
 
         followers = return_followers(self)
         formatted_followers = format_number(followers)
@@ -176,7 +150,6 @@ class TwitterBot:
 
     # switch to main window  
     time.sleep(2)
-    self.driver.switch_to.window(self.driver.window_handles[0])
 
   # collect video data
   def collect_video_data(self):
@@ -255,7 +228,6 @@ wpu_bot = TwitterBot('username', 'password')
 wpu_bot.create_new_folder()
 wpu_bot.construct_page_urls()
 wpu_bot.login()
-wpu_bot.go_to_account_overview()
 wpu_bot.collect_data()
 wpu_bot.write_to_csv()
 wpu_bot.collect_video_data()
