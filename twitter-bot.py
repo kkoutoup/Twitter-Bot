@@ -59,10 +59,8 @@ class TwitterBot:
   # construct page urls for scraper using twitter handles
   def construct_page_urls(self):
     print('=> Constructing page urls')
-
     # this list should contain all twitter handles. placeholders used here
     twitter_handles = ['twitterhandle1','twitterhandle2','twitterhandle3']
-    
     self.page_urls = [f"https://analytics.twitter.com/user/{item}/home" for item in twitter_handles]
 
   # login 
