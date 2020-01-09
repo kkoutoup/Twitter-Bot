@@ -1,11 +1,15 @@
-#Dependencies
+# Dependencies
 import time, os
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from datetime import date
 
-#Local Dependencies
+# Local Dependencies
 from format_number import format_number
 from return_mentions import return_mentions
 from return_profile_visits import return_profile_visits
@@ -13,9 +17,7 @@ from return_new_followers import return_new_followers
 from return_followers import return_followers
 from create_csv import create_csv
 
-
-
-#TwitterBot
+# TwitterBot
 class TwitterBot:
   
   def __init__(self, username, password):
@@ -27,20 +29,22 @@ class TwitterBot:
     self.page_urls = []
     self.data = []
 
-  #create new folder to store data
+  # create new folder to store data
   def create_new_folder(self):
-    #calculcate previous month
-    #tweet bot needs to collect data for previous month for monthly retrospective/presentations so folder for data should be named after previous month
+    # calculcate previous month
+    # tweet bot needs to collect data for previous month for monthly retrospective/presentations so folder for data should be named after previous month
     current_date = date.today()
     current_month = current_date.month
     current_year = current_date.year
 
     if current_month == 1:
       self.month_year = current_date.replace(month = 12, year = current_year-1).strftime('%b %Y')
+      self.full_month_year = current_date.replace(month = 12, year = current_year-1).strftime('%B %Y')
     else:
       self.month_year = current_date.replace(month = current_month-1).strftime('%b %Y')
+      self.full_month_year = current_date.replace(month = current_month-1).strftime('%B %Y')
 
-    #destination folder path / use this to store csv file
+    # destination folder path / use this to store csv file
     self.new_folder_path = os.path.join(os.getcwd(), f"{self.month_year} Tweet Data")
     
     try:
@@ -52,30 +56,30 @@ class TwitterBot:
     except Exception as e:
       print(e)
 
-  #construct page urls for scraper using twitter handles
+  # construct page urls for scraper using twitter handles
   def construct_page_urls(self):
     print('=> Constructing page urls')
 
-    #this list should contain all twitter handles. placeholders used here
+    # this list should contain all twitter handles. placeholders used here
     twitter_handles = ['twitterhandle', 'twitterhandle', 'twitterhandle']
     
     self.page_urls = [f"https://analytics.twitter.com/user/{item}/home" for item in twitter_handles]
 
-  #login 
+  # login 
   def login(self):
     print("=> Visiting twitter.com")
     try:
       login_url = 'https://twitter.com'
       driver = self.driver
       driver.get(login_url)
-      #using sleep to make sure page loads and 'NoSuchElement' exceptions are avoided
+      # using sleep to make sure page loads and 'NoSuchElement' exceptions are avoided
       time.sleep(3)
     except Exception as e:
       print(e)
     else:
       print('=> Logging into Twitter')
       time.sleep(3)
-      #target username and password fiels and login
+      # target username and password fiels and login
       username_field = driver.find_element_by_class_name('email-input')
       password_field = driver.find_element_by_name('session[password]')
       username_field.clear()
@@ -84,36 +88,6 @@ class TwitterBot:
       password_field.send_keys(self.password)
       driver.find_element_by_class_name('js-submit').click()
       time.sleep(5)
-  
-  #switch to account overview page. This gives access to all individual twitter accounts
-  def go_to_account_overview(self):  
-    print("=> Switching to account overview page")
-    driver = self.driver
-    try:
-      driver.find_elements_by_xpath('//div[@class="css-1dbjc4n"]')[8].click()
-      time.sleep(3)
-      driver.find_element_by_xpath('//div[@title="Analytics"]').click()
-      time.sleep(3)
-      #switch to new window and check window title
-      driver.switch_to.window(driver.window_handles[1])
-      assert "Twitter Analytics account overview" in driver.title
-    except AssertionError:
-      print("Error: This is not the account overview page")
-    except Exception as e:
-      print(e)
-    else:
-      time.sleep(2)
-      #click on dropdown and select 'switch accounts'
-      driver.find_element_by_link_text('link text').click()
-      driver.find_element_by_id('switch-account-link').click()
-      time.sleep(2)
-      try:
-        #making sure we're on the correct page
-        assert "Select an account" in driver.title
-      except AssertionError:
-        print("Error: This is not the account selection page")
-      else:    
-        pass
 
   #loop through accounts and collect data
   def collect_data(self):
@@ -128,6 +102,10 @@ class TwitterBot:
       #collect and format data  
       try:
         committee_name = driver.find_element_by_class_name('ProfileHeader-screenName').text[1:]
+
+        #if the script is run on the 1st of the month the stats appear at the top of the page. if not the browser needs to scroll down a bit for dynamic loading of data to happen.
+        self.driver.execute_script("window.scrollBy(0,1800)")
+        time.sleep(4)
 
         followers = return_followers(self)
         formatted_followers = format_number(followers)
@@ -148,9 +126,9 @@ class TwitterBot:
       else:
         self.data.append(committee_data_list)
 
-  #write to csv and move csv in the output folder
+  # write to csv and move csv in the output folder
   def write_to_csv(self):
-    #checks if file exists and asks for user input
+    # checks if file exists and asks for user input
     current_path = os.getcwd()+f"\\twitter-data.csv"
     new_path = f"{self.new_folder_path}\\twitter-data.csv"
     if os.path.exists(new_path):
@@ -169,18 +147,88 @@ class TwitterBot:
       new_csv = create_csv(self)
       os.rename(current_path, new_path)
       print("=> csv file saved")
-   
-  #close driver
-  def close_driver(self):
-    print("=> Closing driver...")
-    self.driver.close()
 
-#run sequence
+    # switch to main window  
+    time.sleep(2)
+
+  # collect video data
+  def collect_video_data(self):
+    print("=> Downloading video data")
+    for item in self.page_urls:
+      try:
+        self.driver.get(item)
+        time.sleep(4)
+        # click on dropdown and select videos page link
+        self.driver.find_elements_by_xpath('//ul[@class = "SharedNavBar-navGroup"]//li')[4].click()
+        self.driver.find_elements_by_xpath('//ul[@class = "SharedNavBar-navGroup"]//li')[5].click()
+        time.sleep(4)
+        # set date_range
+        self.driver.find_element_by_id('daterange-button').click() 
+        time.sleep(4)
+        self.driver.find_element_by_xpath('//li[text() = "%s"]'%self.full_month_year).click()
+        time.sleep(4)
+        download_csv_button = self.driver.find_element_by_xpath('//button[@class = "btn btn-default ladda-button"]')
+        # if element is clickable download video data .csv
+        if download_csv_button.is_enabled():
+          try:
+            download_csv_button.click()
+            time.sleep(2)
+            self.driver.find_element_by_xpath('//button[@data-type = "by_video"]').click()
+            time.sleep(2)
+            # give the operation a 15" window to complete, otherwise throw timeout exception
+            wait = WebDriverWait(self.driver, 15)
+            element = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@class = "btn btn-default ladda-button"]')))
+          except TimeoutException:
+            print(f"Operation timed out at {self.driver.current_url}. Moving to next page.")
+          finally:
+            pass
+        else:
+          print(f"No video data for {self.driver.current_url}")
+      except Exception as e:
+        print(e)
+    
+  # collect tweet data
+  def collect_tweet_data(self):
+    print("=> Downloading tweet data")
+    for item in self.page_urls:
+      try:
+        driver = self.driver
+        driver.get(item)
+        time.sleep(4)
+        # click on dropdown and select tweets page link
+        driver.find_elements_by_xpath('//ul[@class="SharedNavBar-navGroup"]//li')[1].click()
+        time.sleep(4)
+        # set date_range
+        driver.find_element_by_id('daterange-button').click() 
+        time.sleep(4)
+        driver.find_element_by_xpath('//li[text() = "%s"]'%self.full_month_year).click()
+        time.sleep(4)
+        download_csv_button = driver.find_element_by_xpath('//button[@class = "btn btn-default ladda-button"]')
+        # if element is clickable download tweet data .csv
+        if download_csv_button.is_enabled():
+          try:
+            download_csv_button.click()
+            time.sleep(2)
+            driver.find_element_by_xpath('//button[@data-type = "by_tweet"]').click()
+            time.sleep(2)
+            # give the operation a 30" window to complete, otherwise throw timeout exception
+            wait = WebDriverWait(driver, 30)
+            element = wait.until(EC.element_to_be_clickable((By.XPATH, '//button[@class = "btn btn-default ladda-button"]')))
+          except TimeoutException:
+            print(f"Operation timed out at {self.driver.current_url}. Moving to next page.")
+          finally:
+            pass
+        else:
+          print(f"No tweet data for {self.driver.current_url}")
+      except Exception as e:
+        print(e)
+
+# run sequence
 wpu_bot = TwitterBot('username', 'password')
 wpu_bot.create_new_folder()
 wpu_bot.construct_page_urls()
 wpu_bot.login()
-wpu_bot.go_to_account_overview()
 wpu_bot.collect_data()
 wpu_bot.write_to_csv()
-wpu_bot.close_driver()
+wpu_bot.collect_video_data()
+wpu_bot.collect_tweet_data()
