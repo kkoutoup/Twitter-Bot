@@ -146,7 +146,6 @@ class TwitterBot:
       os.rename(current_path, new_path)
       print("=> csv file saved")
 
-    # switch to main window  
     time.sleep(2)
 
   # collect video data
