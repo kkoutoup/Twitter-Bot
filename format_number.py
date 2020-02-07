@@ -15,7 +15,16 @@ def format_number(data):
     if'.' in data:
       data = (data[:-1].replace('.' , ''))+'00'
     else:
-      data = data[:-1]+'000'
+      data = data[:-1] + '000'
+  elif data.endswith('M'):
+    if '.' in data:
+      data = data[:-1].replace('.', '')
+      if len(data) == 3:
+        data = data + '0000'
+      else:
+        data = data + '00000'
+    else:
+      data = data.replace('M', '') + '000000'
   elif ',' in data:
     data = data.replace(',' , '')
   else:
