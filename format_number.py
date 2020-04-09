@@ -1,9 +1,9 @@
-#data formatting function
-#the way Twitter displays numbers will break excel calculations so numbers need to converted to the right format
-#18.5K => 18500
-#6,543 => 6543
-#Currently unavailable => 0
-#etc.
+# data formatting function
+# the way Twitter displays numbers will break excel calculations so numbers need to converted to the right format
+# 18.5K => 18500
+# 6,543 => 6543
+# Currently unavailable => 0
+# etc.
 def format_number(data):
   if data == None or data == '':
     data = 'N/A'
