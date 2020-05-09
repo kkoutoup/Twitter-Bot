@@ -1,15 +1,15 @@
 # Twitter Bot - Analytics Accounts
 
-### Category
+## Category
 Web scraping/automation/data collection
 
-### Purpose
+## Purpose
 Collect data from Twitter Analytics accounts.
 
-### User needs
+## User needs
 Helping out the team's performance analyst automate a process that up until now was done manually. The bot visits 36 individual twitter accounts and collects data that is saved in a .csv file, ready for analysis.
 
-### Data collected
+## Data collected
 - Followers
 - Profile visits
 - Mentions
@@ -17,7 +17,7 @@ Helping out the team's performance analyst automate a process that up until now 
 - Video analytics (csv download)
 - Tweet analytics (csv download)
 
-### File structure
+## File structure
 Main file `twitter-bot.py` that imports the following modules
 ```
 
@@ -32,7 +32,7 @@ twitter-bot.py
 
 ```
 
-### Dependencies
+## Dependencies
 Built with Python 3.6.4 and the following modules
 - [selenium](https://selenium-python.readthedocs.io/index.html)
 - datetime
@@ -40,6 +40,6 @@ Built with Python 3.6.4 and the following modules
 - os
 - csv
 
-### Developed by
+## Developed by
 Kostas Koutoupis ([@kkoutoup](https://github.com/kkoutoup)) for the Web and Publications Unit (WPU) of the Chambers and Committee Office (CCT), House of Commons
 
